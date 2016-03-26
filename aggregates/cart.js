@@ -1,21 +1,11 @@
 var gesClient = require('../lib/event-store-client')();
 var eventstore = require('geteventstore-promise');
 
-var cart = new function() {
-
-    // Given a stream build a model the beginning
-    // return the hydrated model via the callback
-    this.reconstitute = function(stream, cb) {
-      this.eventNumber = -1;
-      this.productQtys = {}; // mapping of product ids to qty in cart
-
-      gesClient.readEvents(stream).then( function(events) {
-      });
-    }
-
-    // Event Application
-
-    this.applyEvent = function(event) {
+var Cart = function() {
+    this.productQtys = {}; // mapping of product ids to qty in cart
+    this.errors = [];
+    
+    this.apply = function(event) {
       switch (event.type) {
         case 'productAddedToCart':
           this.productAdded(event.payload);
@@ -29,7 +19,7 @@ var cart = new function() {
       }
     }
 
-    this.productAdded = function(payload) {
+    this.productAddedToCart = function(payload) {
       var productId = payload.productID;
       var productQty = payload.productQuantity;
       if (this.productQtys[productId]) {
@@ -41,7 +31,7 @@ var cart = new function() {
       }
     }
 
-    this.productRemoved = function(payload) {
+    this.productRemovedFromCart = function(payload) {
       var productId = payload.productID;
       var productQty = payload.productQuantity;
       if (this.productQtys[productId]) {
@@ -54,6 +44,8 @@ var cart = new function() {
     }
 
     this.toString = function () {
-      return "Cart " + this.id;
+      return this.stream;
     };
 }
+
+module.exports = Cart;

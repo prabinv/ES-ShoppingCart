@@ -17,10 +17,10 @@ var cart = new function() {
 
     this.applyEvent = function(event) {
       switch (event.type) {
-        case 'productAdded':
+        case 'productAddedToCart':
           this.productAdded(event.payload);
           break;
-        case 'productRemoved':
+        case 'productRemovedFromCart':
           this.productRemoved(event.payload);
           break;
         default:

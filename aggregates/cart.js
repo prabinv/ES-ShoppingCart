@@ -4,14 +4,14 @@ var eventstore = require('geteventstore-promise');
 var Cart = function() {
     this.productQtys = {}; // mapping of product ids to qty in cart
     this.errors = [];
-    
+
     this.apply = function(event) {
       switch (event.type) {
         case 'productAddedToCart':
-          this.productAdded(event.payload);
+          this.productAddedToCart(event.payload);
           break;
         case 'productRemovedFromCart':
-          this.productRemoved(event.payload);
+          this.productRemovedFromCart(event.payload);
           break;
         default:
           this.errors.push('Unhandled Event '+event.type);

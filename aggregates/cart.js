@@ -3,33 +3,50 @@ var eventstore = require('geteventstore-promise');
 
 var cart = new function() {
 
-    // Given a Stream
-    this.constitute = function(stream, cb) {
+    // Given a stream build a model the beginning
+    // return the hydrated model via the callback
+    this.reconstitute = function(stream, cb) {
       this.eventNumber = -1;
-      this.products = {}; // mapping of product ids to qty in cart
-      this.errors = [];
+      this.productQtys = {}; // mapping of product ids to qty in cart
 
       gesClient.readEvents(stream).then( function(events) {
-        console.log(events);
       });
     }
 
     // Event Application
 
-    this.productAdded = function(productId) {
-      if (this.products[productId]) {
-        // If this product is in cart increase the qty
-        this.products[productId] = this.products[productId] + 1;
-      } else {
-        // if this product is not in the cart add it
-        this.products[productId] = 1;
+    this.applyEvent = function(event) {
+      switch (event.type) {
+        case 'productAdded':
+          this.productAdded(event.payload);
+          break;
+        case 'productRemoved':
+          this.productRemoved(event.payload);
+          break;
+        default:
+          this.errors.push('Unhandled Event '+event.type);
+          break;
       }
     }
 
-    this.productRemoved = function(productId) {
-      if (this.products[productId]) {
+    this.productAdded = function(payload) {
+      var productId = payload.productID;
+      var productQty = payload.productQuantity;
+      if (this.productQtys[productId]) {
+        // If this product is in cart increase the qty
+        this.productQtys[productId] = this.productQtys[productId] + productQty;
+      } else {
+        // if this product is not in the cart add it
+        this.productQtys[productId] = productQty;
+      }
+    }
+
+    this.productRemoved = function(payload) {
+      var productId = payload.productID;
+      var productQty = payload.productQuantity;
+      if (this.productQtys[productId]) {
         // If this product is in cart decrase the qty
-        this.products[productId] = this.products[productId] + 1;
+        this.productQtys[productId] = this.productQtys[productId] - productQty;
       } else {
         // This should never happen
         this.errors.push('Product removed event for product '+ productId + ' does not make sense given product is not in cart.');
@@ -37,6 +54,6 @@ var cart = new function() {
     }
 
     this.toString = function () {
-        return this.color + ' ' + this.type + ' apple';
+      return "Cart " + this.id;
     };
 }

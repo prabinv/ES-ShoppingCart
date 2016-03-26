@@ -3,25 +3,18 @@ var eventstore = require('geteventstore-promise');
 
 var cart = new function() {
 
-    // Commands
-
-    this.createCart = function(cb) {
-      this.id = uuid.v4();
-      this.productQty = {};
+    // Given a Stream
+    this.constitute = function(stream, cb) {
+      this.eventNumber = -1;
+      this.products = {}; // mapping of product ids to qty in cart
       this.errors = [];
 
-      var events = [eventstore.eventFactory.NewEvent('cartCreated', {id: id})];
-      gesClient.writeEvents(stream, events).then( function(events) {
-        res.write(stream);
-        res.end();
+      gesClient.readEvents(stream).then( function(events) {
+        console.log(events);
       });
     }
 
-    this.removeProduct = function(productId) {
-
-    }
-
-    // Events
+    // Event Application
 
     this.productAdded = function(productId) {
       if (this.products[productId]) {

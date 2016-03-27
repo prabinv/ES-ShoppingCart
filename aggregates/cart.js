@@ -48,7 +48,6 @@ var Cart = function(stream) {
     }
 
     this.removeProduct = function(payload, cb) {
-      console.log('removeCart');
       var events = [eventstore.eventFactory.NewEvent('productRemovedFromCart', {
         cartID: this.stream,
         productID: payload.productID,
@@ -87,7 +86,6 @@ var Cart = function(stream) {
         // if this product is not in the cart add it
         this.productQtys[productId] = productQty;
       }
-      console.log(JSON.stringify(this.productQtys, null, 2));
     }
 
     this.productRemovedFromCart = function(payload) {
